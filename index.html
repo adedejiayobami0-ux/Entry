@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WayIn — Accessible travel, stays & events</title>
-<meta name="description" content="Plan accessible trips, hotels and events with an AI accessibility concierge.">
+<title>WayIn — Travel that fits everyone</title>
+<meta name="description" content="AI trip planning for families, groups, accessibility needs, schedules, and real-life travel constraints.">
 <style>
 :root{
   --bg:#f7f7fb;--surface:#fff;--ink:#15161f;--muted:#6a6d7b;--line:#e1e3eb;
@@ -87,9 +87,9 @@ footer{text-align:center;color:var(--muted);padding:36px 0 10px}
 
 <section class="hero">
   <div class="card hero-main">
-    <span class="kicker">Accessible travel, all in one place</span>
-    <h1>Plan the whole experience, not just the destination.</h1>
-    <p>Find accessible hotels, trips and events based on the details that matter to you — then ask WayIn AI to help compare options, build an itinerary and prepare accommodation requests.</p>
+    <span class="kicker">Travel that fits everyone</span>
+    <h1>Plan around people, not just places.</h1>
+    <p>WayIn plans hotels, activities, events and transportation around your group's real needs — accessibility, mobility, kids, nap schedules, older travelers, dietary preferences, budget and energy levels.</p>
     <div class="searchbox">
       <input id="destination" placeholder="Where do you want to go?" aria-label="Destination">
       <select id="need"><option>Any accessibility need</option><option>Step-free access</option><option>Accessible restroom</option><option>Low sensory</option><option>Captions / ASL</option></select>
@@ -123,7 +123,7 @@ footer{text-align:center;color:var(--muted);padding:36px 0 10px}
 
 <section class="card trip-builder">
   <span class="kicker">Trip builder</span>
-  <h2>One accessibility profile. Your whole trip.</h2>
+  <h2>One trip. Everyone’s needs.</h2>
   <div class="trip-steps">
     <div class="step"><b>1 · Getting there</b><span class="meta">Flights, rail, rideshare and step-free connections.</span></div>
     <div class="step"><b>2 · Staying there</b><span class="meta">Room, bathroom, elevator and entrance details.</span></div>
@@ -139,6 +139,22 @@ footer{text-align:center;color:var(--muted);padding:36px 0 10px}
     <div class="smallcard"><b>Verified sources</b><p class="meta">Venue, hotel and traveler confirmations are shown separately.</p></div>
     <div class="smallcard"><b>No diagnosis required</b><p class="meta">People select practical needs, not medical labels.</p></div>
     <div class="smallcard"><b>AI that explains gaps</b><p class="meta">WayIn flags when accessibility information is missing instead of pretending certainty.</p></div>
+  </div>
+</section>
+
+
+<section class="card panel" id="group-fit">
+  <span class="kicker">Group Fit</span>
+  <h2>WayIn plans for everyone traveling.</h2>
+  <p class="meta">Instead of asking whether someone has a disability, WayIn asks what the group needs to have a good trip.</p>
+  <div class="panel-grid">
+    <div class="smallcard"><b>Parent + toddler</b><p class="meta">Stroller access · nap 1–3 PM · family restroom · high chairs</p></div>
+    <div class="smallcard"><b>Older traveler</b><p class="meta">Limited walking · elevator required · frequent seating · no long queues</p></div>
+    <div class="smallcard"><b>Personal preferences</b><p class="meta">Vegetarian · budget · early nights · museums · quieter environments</p></div>
+  </div>
+  <div class="match" style="margin-top:16px">
+    <span><b>Chicago Family Weekend</b><br><span class="meta">Stroller + limited walking + nap schedule + vegetarian</span></span>
+    <strong style="color:var(--good)">94% group fit</strong>
   </div>
 </section>
 
@@ -179,7 +195,7 @@ function card(x){
  return `<article class="item">
  <div class="thumb ${cls}"><span class="badge">${x.type}</span><span class="badge">${x.score}% match</span></div>
  <div class="body"><h3>${x.name}</h3><div class="meta">${x.place}</div>
- <div class="score"><span>Accessibility match</span><strong>${x.score}%</strong></div>
+ <div class="score"><span>Group fit</span><strong>${x.score}%</strong></div>
  <div class="tags">${x.tags.map(t=>`<span class="tag">✓ ${t}</span>`).join("")}</div>
  <button class="btn primary" style="width:100%;margin-top:14px" onclick="askAbout('${x.name.replace(/'/g,"\\'")}')">Ask AI about this</button></div></article>`;
 }
