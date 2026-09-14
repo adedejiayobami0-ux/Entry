@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<title>WayIn — Travel that fits everyone</title>
+<style>
+:root{--bg:#f7f7fb;--ink:#161722;--muted:#686c7a;--line:#e1e3eb;--brand:#4f46e5;--brand2:#efefff;--good:#147a50;--warn:#9a6700;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif}button,input,select,textarea{font:inherit}.shell{max-width:1200px;margin:auto;padding:20px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-size:1.3rem;font-weight:900}.brand b{display:inline-grid;place-items:center;width:38px;height:38px;background:var(--brand);color:#fff;border-radius:12px;margin-right:8px}.btn{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:12px;cursor:pointer}.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:750}.hero{margin-top:18px;background:linear-gradient(135deg,#fff,#f6f5ff)}.kicker{display:inline-block;background:var(--brand2);color:#3630a8;border-radius:999px;padding:6px 10px;font-size:.84rem;font-weight:750}h1{font-size:clamp(2.4rem,6vw,4.5rem);line-height:1;letter-spacing:-.045em;margin:14px 0}.muted{color:var(--muted)}.searchgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.field{display:grid;gap:5px}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;background:white}.span2{grid-column:span 2}.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px}.chip[aria-pressed=true]{background:var(--brand2);border-color:var(--brand);color:#30299c}.layout{display:grid;grid-template-columns:1fr 330px;gap:16px;margin-top:18px}.results{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.result h3{margin:6px 0}.row{display:flex;justify-content:space-between;gap:8px;align-items:center}.badge{font-size:.78rem;border-radius:999px;padding:5px 8px;background:#f1f2f6}.source{font-size:.78rem;color:var(--muted)}.tripitem{padding:10px 0;border-bottom:1px solid var(--line)}.chatlog{height:260px;overflow:auto;display:grid;gap:8px;margin:10px 0}.bubble{background:#f1f2f6;padding:10px;border-radius:12px}.me{background:var(--brand);color:#fff;margin-left:35px}.chatrow{display:flex;gap:7px}.chatrow input{flex:1;border:1px solid var(--line);border-radius:12px;padding:10px}.sharebox{margin-top:14px}.sharebox textarea{min-height:65px}.status{font-size:.88rem;margin-top:8px}.good{color:var(--good)}.bad{color:var(--danger)}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.searchgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.searchgrid,.results{grid-template-columns:1fr}.span2{grid-column:auto}.top{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="top"><div class="brand"><b>W</b>WayIn</div><div><span id="user"></span> <button class="btn" id="login">Log in</button><button class="btn primary" id="signup">Create account</button><button class="btn" id="logout" hidden>Log out</button></div></div>
+
+<section class="card hero">
+<span class="kicker">One trip. Everyone’s needs.</span>
+<h1>Search, plan, ask AI, then share with everyone.</h1>
+<p class="muted">Search as a guest. Sign in only when you want to save or send the trip to your group.</p>
+<div class="searchgrid">
+<label class="field"><span>Origin airport</span><input id="origin" placeholder="SEA" value="SEA" maxlength="3"></label>
+<label class="field"><span>Destination / city code</span><input id="destination" placeholder="Chicago or CHI" value="Chicago"></label>
+<label class="field"><span>Depart</span><input id="depart" type="date"></label>
+<label class="field"><span>Return</span><input id="returnDate" type="date"></label>
+<label class="field"><span>Who's traveling?</span><select id="traveler"><option value="individual">Individual</option><option value="couple">Couple</option><option value="single_parent">Single parent + kids</option><option value="family">Family</option><option value="group">Friends / group</option></select></label>
+<label class="field"><span>Adults</span><input id="adults" type="number" min="1" max="9" value="1"></label>
+<label class="field"><span>Search</span><select id="category"><option>Everything</option><option>Flights</option><option>Hotels</option><option>Events</option></select></label>
+<div class="field"><span>&nbsp;</span><button class="btn primary" id="searchBtn">Search live</button></div>
+</div>
+<div class="chips">
+{% for need in needs %}<button class="chip" data-need="{{ need }}" aria-pressed="false">{{ need }}</button>{% endfor %}
+</div>
+<div id="searchStatus" class="status muted"></div>
+</section>
+
+<div class="layout">
+<main>
+<div class="row"><h2>Results</h2><span class="muted" id="resultCount"></span></div>
+<div id="results" class="results"><div class="card muted">Search flights, hotels, or events to begin.</div></div>
+</main>
+
+<aside>
+<section class="card">
+<div class="row"><h2 style="margin:0">Your trip</h2><span class="badge" id="tripCount">0 items</span></div>
+<div id="tripItems"><p class="muted">Add results to build the shared itinerary.</p></div>
+</section>
+
+<section class="card" style="margin-top:14px">
+<span class="kicker">WayIn AI</span>
+<div id="chatlog" class="chatlog"><div class="bubble">Ask me to organize the selected trip, reduce walking, protect nap time, compare choices, or make the day more accessible.</div></div>
+<form id="chatForm" class="chatrow"><input id="chatInput" placeholder="Ask about this trip…"><button class="btn primary">Send</button></form>
+</section>
+
+<section class="card sharebox">
+<h3>Share with everyone</h3>
+<p class="muted">Sign in, then send your selected itinerary by email and/or SMS.</p>
+<label class="field"><span>Emails, separated by commas</span><textarea id="emails" placeholder="mom@example.com, friend@example.com"></textarea></label>
+<label class="field"><span>Phone numbers, separated by commas</span><textarea id="phones" placeholder="+12065550123, +13125550123"></textarea></label>
+<button class="btn primary" id="shareBtn">Send trip</button>
+<div id="shareStatus" class="status"></div>
+</section>
+</aside>
+</div>
+</div>
+
+<div id="auth" style="display:none;position:fixed;inset:0;background:#0007;place-items:center;padding:18px">
+<form id="authForm" class="card" style="width:min(440px,100%)">
+<h2 id="authTitle">Log in</h2>
+<label class="field"><span>Email</span><input id="authEmail" type="email" required></label>
+<label class="field"><span>Password</span><input id="authPassword" type="password" minlength="10" required></label>
+<div id="authError" class="status bad"></div>
+<div class="row" style="margin-top:12px"><button type="button" class="btn" id="cancelAuth">Cancel</button><button class="btn primary" id="authSubmit">Log in</button></div>
+</form>
+</div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>
