@@ -71,6 +71,19 @@ h1{font-size:clamp(2.4rem,6vw,4.8rem);letter-spacing:-.045em;line-height:.98;mar
 footer{text-align:center;color:var(--muted);padding:36px 0 10px}
 @media(max-width:900px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.trip-steps{grid-template-columns:1fr 1fr}.panel-grid{grid-template-columns:1fr 1fr}.searchbox{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.shell{padding:14px}.grid{grid-template-columns:1fr}.searchbox{grid-template-columns:1fr}.trip-steps,.panel-grid{grid-template-columns:1fr}.nav .secondary{display:none}}
+
+.searchbox-v4{grid-template-columns:.8fr 1.2fr .8fr auto}
+.traveler-panel{margin-top:14px;background:#fafafe;border:1px solid var(--line);border-radius:18px;padding:14px}
+.traveler-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.search-needs{margin-top:4px}
+.family-members{display:grid;gap:12px}
+.family-member{display:grid;grid-template-columns:160px 140px 1fr;gap:10px;align-items:start;background:white;border:1px solid var(--line);border-radius:16px;padding:12px}
+.family-member input,.family-member select{border:1px solid var(--line);border-radius:11px;padding:10px;background:white}
+.member-needs{align-items:center}
+.search-summary{margin-top:12px;color:var(--muted);font-size:.92rem}
+@media(max-width:900px){.family-member{grid-template-columns:1fr 1fr}.family-member .member-needs{grid-column:1/-1}}
+@media(max-width:620px){.family-member{grid-template-columns:1fr}.family-member .member-needs{grid-column:auto}.traveler-panel-head{align-items:flex-start;flex-direction:column}}
+
 </style>
 </head>
 <body>
@@ -90,12 +103,69 @@ footer{text-align:center;color:var(--muted);padding:36px 0 10px}
     <span class="kicker">Travel that fits everyone</span>
     <h1>Plan around people, not just places.</h1>
     <p>WayIn plans hotels, activities, events and transportation around your group's real needs — accessibility, mobility, kids, nap schedules, older travelers, dietary preferences, budget and energy levels.</p>
-    <div class="searchbox">
+    <div class="searchbox searchbox-v4">
+      <select id="travelerType" aria-label="Who is this trip for?" onchange="toggleTravelerMode()">
+        <option value="individual">Individual</option>
+        <option value="family">Family / group</option>
+      </select>
       <input id="destination" placeholder="Where do you want to go?" aria-label="Destination">
-      <select id="need"><option>Any accessibility need</option><option>Step-free access</option><option>Accessible restroom</option><option>Low sensory</option><option>Captions / ASL</option></select>
-      <select id="category"><option>Everything</option><option>Hotels</option><option>Trips</option><option>Events</option></select>
+      <select id="category" aria-label="What are you looking for?">
+        <option value="Everything">Everything</option>
+        <option value="Hotels">Hotels</option>
+        <option value="Trips">Trips</option>
+        <option value="Events">Events</option>
+      </select>
       <button class="btn primary" onclick="runSearch()">Search</button>
     </div>
+
+    <div class="traveler-panel" id="individualPanel">
+      <div class="traveler-panel-head">
+        <div><b>What should WayIn keep in mind?</b><div class="meta">Choose practical needs, not diagnoses.</div></div>
+      </div>
+      <div class="chips search-needs" id="individualNeeds">
+        <button class="chip" aria-pressed="false" data-need="Step-free access">Step-free access</button>
+        <button class="chip" aria-pressed="false" data-need="Accessible restroom">Accessible restroom</button>
+        <button class="chip" aria-pressed="false" data-need="Low sensory">Low sensory</button>
+        <button class="chip" aria-pressed="false" data-need="Captions / ASL">Captions / ASL</button>
+        <button class="chip" aria-pressed="false" data-need="Limited walking">Limited walking</button>
+        <button class="chip" aria-pressed="false" data-need="Service animal">Service animal</button>
+      </div>
+    </div>
+
+    <div class="traveler-panel" id="familyPanel" hidden>
+      <div class="traveler-panel-head">
+        <div><b>Who’s coming?</b><div class="meta">Add the needs that matter across the whole group.</div></div>
+        <button class="btn" type="button" onclick="addFamilyMember()">+ Add person</button>
+      </div>
+      <div id="familyMembers" class="family-members">
+        <div class="family-member" data-member="1">
+          <input class="member-name" value="Adult 1" aria-label="Traveler name">
+          <select class="member-role" aria-label="Traveler type">
+            <option>Adult</option><option>Child</option><option>Older adult</option>
+          </select>
+          <div class="chips member-needs">
+            <button class="chip" aria-pressed="false" data-need="Step-free access">Step-free</button>
+            <button class="chip" aria-pressed="false" data-need="Limited walking">Limited walking</button>
+            <button class="chip" aria-pressed="false" data-need="Stroller">Stroller</button>
+            <button class="chip" aria-pressed="false" data-need="Nap schedule">Nap schedule</button>
+            <button class="chip" aria-pressed="false" data-need="Low sensory">Low sensory</button>
+          </div>
+        </div>
+        <div class="family-member" data-member="2">
+          <input class="member-name" value="Child" aria-label="Traveler name">
+          <select class="member-role" aria-label="Traveler type">
+            <option>Child</option><option>Adult</option><option>Older adult</option>
+          </select>
+          <div class="chips member-needs">
+            <button class="chip" aria-pressed="true" data-need="Stroller">Stroller</button>
+            <button class="chip" aria-pressed="true" data-need="Nap schedule">Nap schedule</button>
+            <button class="chip" aria-pressed="false" data-need="Family restroom">Family restroom</button>
+            <button class="chip" aria-pressed="false" data-need="Low sensory">Low sensory</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="searchSummary" class="search-summary" aria-live="polite"></div>
   </div>
 
   <aside class="card ai-card">
@@ -176,29 +246,49 @@ footer{text-align:center;color:var(--muted);padding:36px 0 10px}
 <script>
 const data = {
 trips:[
- {type:"Trip",name:"Seattle Accessible Weekend",place:"Seattle, WA",score:94,tags:["Step-free transit","Low walking load","Accessible attractions"]},
- {type:"Trip",name:"Chicago Arts Escape",place:"Chicago, IL",score:91,tags:["Elevator access","Accessible rail","Museum seating"]},
- {type:"Trip",name:"San Diego Coastal Stay",place:"San Diego, CA",score:89,tags:["Accessible paths","Beach chair options","Low sensory picks"]}
+ {type:"Trip",name:"Seattle Accessible Weekend",place:"Seattle, WA",score:94,features:["Step-free access","Limited walking","Low sensory","Family restroom","Stroller"],tags:["Step-free transit","Low walking load","Accessible attractions"]},
+ {type:"Trip",name:"Chicago Family Arts Escape",place:"Chicago, IL",score:93,features:["Stroller","Nap schedule","Family restroom","Limited walking"],tags:["Short transfers","Nap-friendly pacing","Family stops"]},
+ {type:"Trip",name:"San Diego Coastal Stay",place:"San Diego, CA",score:89,features:["Step-free access","Accessible restroom","Stroller","Low sensory"],tags:["Accessible paths","Beach chair options","Low sensory picks"]}
 ],
 hotels:[
- {type:"Hotel",name:"Harbor View Hotel",place:"Downtown Seattle",score:96,tags:["Roll-in shower","Step-free entrance","Elevator"]},
- {type:"Hotel",name:"Cityline Suites",place:"Chicago Loop",score:92,tags:["Accessible room","Visual alerts","Wide doorways"]},
- {type:"Hotel",name:"Pacific Courtyard",place:"San Diego",score:90,tags:["Accessible parking","Pool lift","Service animals"]}
+ {type:"Hotel",name:"Harbor View Hotel",place:"Downtown Seattle",score:96,features:["Step-free access","Accessible restroom","Limited walking","Service animal"],tags:["Roll-in shower","Step-free entrance","Elevator"]},
+ {type:"Hotel",name:"Cityline Family Suites",place:"Chicago Loop",score:95,features:["Stroller","Family restroom","Nap schedule","Limited walking"],tags:["Family suite","Elevator","Near transit"]},
+ {type:"Hotel",name:"Pacific Courtyard",place:"San Diego",score:90,features:["Step-free access","Accessible restroom","Service animal","Low sensory"],tags:["Accessible parking","Pool lift","Service animals"]}
 ],
 events:[
- {type:"Event",name:"Sounders Night Match",place:"Lumen Field",score:92,tags:["Step-free entry","Accessible seating","Captions"]},
- {type:"Event",name:"Indie Film + Q&A",place:"Downtown Cinema",score:96,tags:["Open captions","Wheelchair seating","Quiet lobby"]},
- {type:"Event",name:"Open-Air Food Festival",place:"Seattle Center",score:86,tags:["Paved routes","Accessible restroom","Quiet garden"]}
+ {type:"Event",name:"Sounders Night Match",place:"Lumen Field",score:92,features:["Step-free access","Accessible restroom","Captions / ASL","Service animal"],tags:["Step-free entry","Accessible seating","Captions"]},
+ {type:"Event",name:"Indie Film + Director Q&A",place:"Downtown Cinema",score:96,features:["Step-free access","Accessible restroom","Captions / ASL","Low sensory"],tags:["Open captions","Wheelchair seating","Quiet lobby"]},
+ {type:"Event",name:"Open-Air Food Festival",place:"Seattle Center",score:86,features:["Stroller","Family restroom","Accessible restroom","Low sensory"],tags:["Paved routes","Accessible restroom","Quiet garden"]}
 ]};
+function selectedNeeds(){
+  if(travelerType.value==="individual"){
+    return [...document.querySelectorAll("#individualNeeds .chip[aria-pressed='true']")].map(b=>b.dataset.need);
+  }
+  return [...document.querySelectorAll("#familyMembers .chip[aria-pressed='true']")].map(b=>b.dataset.need);
+}
+function calcFit(x){
+  const needs=[...new Set(selectedNeeds())];
+  if(!needs.length) return x.score;
+  const matched=needs.filter(n=>x.features.includes(n)).length;
+  return Math.round((x.score*0.55)+((matched/needs.length)*100*0.45));
+}
 function card(x){
  const cls=x.type==="Hotel"?"hotel":x.type==="Trip"?"trip":"event";
- return `<article class="item">
- <div class="thumb ${cls}"><span class="badge">${x.type}</span><span class="badge">${x.score}% match</span></div>
+ const fit=calcFit(x);
+ return `<article class="item" data-type="${x.type}">
+ <div class="thumb ${cls}"><span class="badge">${x.type}</span><span class="badge">${fit}% fit</span></div>
  <div class="body"><h3>${x.name}</h3><div class="meta">${x.place}</div>
- <div class="score"><span>Group fit</span><strong>${x.score}%</strong></div>
+ <div class="score"><span>${travelerType.value==="family"?"Group fit":"Your fit"}</span><strong>${fit}%</strong></div>
  <div class="tags">${x.tags.map(t=>`<span class="tag">✓ ${t}</span>`).join("")}</div>
- <button class="btn primary" style="width:100%;margin-top:14px" onclick="askAbout('${x.name.replace(/'/g,"\\'")}')">Ask AI about this</button></div></article>`;
+ <button class="btn primary" style="width:100%;margin-top:14px" onclick="askAbout('${x.name.replace(/'/g,"\'")}')">Ask AI about this</button></div></article>`;
 }
+function renderResults(){
+  tripGrid.innerHTML=data.trips.map(card).join("");
+  hotelGrid.innerHTML=data.hotels.map(card).join("");
+  eventGrid.innerHTML=data.events.map(card).join("");
+  allGrid.innerHTML=[data.hotels[0],data.events[1],data.trips[0],data.hotels[1],data.events[0],data.trips[1]].map(card).join("");
+}
+renderResults();
 tripGrid.innerHTML=data.trips.map(card).join("");
 hotelGrid.innerHTML=data.hotels.map(card).join("");
 eventGrid.innerHTML=data.events.map(card).join("");
@@ -221,11 +311,56 @@ chatForm.addEventListener("submit",e=>{
  e.preventDefault();const q=chatInput.value.trim();if(!q)return;appendMsg(q,"user");chatInput.value="";
  setTimeout(()=>appendMsg("I’d compare options using your accessibility priorities first, then price and convenience. For a real production version, this chat would connect to live travel, hotel and event data instead of demo listings."),250)
 });
-function runSearch(){
- const c=category.value;
- if(c==="Hotels")switchTab("hotels");else if(c==="Trips")switchTab("trips");else if(c==="Events")switchTab("events");else switchTab("all");
- document.querySelector(".tabs").scrollIntoView({behavior:"smooth"});
+function toggleTravelerMode(){
+  const family=travelerType.value==="family";
+  individualPanel.hidden=family;
+  familyPanel.hidden=!family;
+  renderResults();
+  updateSearchSummary();
 }
+function wireChips(root=document){
+  root.querySelectorAll(".chip").forEach(b=>{
+    if(b.dataset.wired) return;
+    b.dataset.wired="1";
+    b.addEventListener("click",()=>{
+      b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true");
+      renderResults();
+      updateSearchSummary();
+    });
+  });
+}
+function addFamilyMember(){
+  const wrap=document.createElement("div");
+  wrap.className="family-member";
+  const idx=document.querySelectorAll(".family-member").length+1;
+  wrap.innerHTML=`<input class="member-name" value="Traveler ${idx}" aria-label="Traveler name">
+  <select class="member-role" aria-label="Traveler type"><option>Adult</option><option>Child</option><option>Older adult</option></select>
+  <div class="chips member-needs">
+    <button class="chip" aria-pressed="false" data-need="Step-free access">Step-free</button>
+    <button class="chip" aria-pressed="false" data-need="Limited walking">Limited walking</button>
+    <button class="chip" aria-pressed="false" data-need="Stroller">Stroller</button>
+    <button class="chip" aria-pressed="false" data-need="Nap schedule">Nap schedule</button>
+    <button class="chip" aria-pressed="false" data-need="Family restroom">Family restroom</button>
+    <button class="chip" aria-pressed="false" data-need="Low sensory">Low sensory</button>
+  </div>`;
+  familyMembers.appendChild(wrap);
+  wireChips(wrap);
+  updateSearchSummary();
+}
+function updateSearchSummary(){
+  const mode=travelerType.value==="family"?"Family / group":"Individual";
+  const needs=[...new Set(selectedNeeds())];
+  searchSummary.textContent=`${mode} · ${needs.length?needs.join(" · "):"No specific needs selected yet"}`;
+}
+function runSearch(){
+  renderResults();
+  const c=category.value;
+  if(c==="Hotels")switchTab("hotels");else if(c==="Trips")switchTab("trips");else if(c==="Events")switchTab("events");else switchTab("all");
+  updateSearchSummary();
+  document.querySelector(".tabs").scrollIntoView({behavior:"smooth"});
+}
+wireChips();
+toggleTravelerMode();
 </script>
 </body>
 </html>
