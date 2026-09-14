@@ -1,7 +1,5 @@
-import os
-import re
-import secrets
-import sqlite3
+import psycopg
+from psycopg.rows import dict_row
 from datetime import timedelta
 from functools import wraps
 
